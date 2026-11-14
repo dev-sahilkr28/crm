@@ -465,9 +465,38 @@ function analyseAccount(acc, idx, ctx) {
   const hay = [accountName, ...personNames].filter((x) => x && x.length > 3).map((x) => x.toLowerCase());
   const fr = features.filter((f) => hay.some((h) => str(f).toLowerCase().includes(h))).map((f, i) => ({ id: idOf(f) ?? null, label: nameOf(f) || str(f).slice(0, 80), cite: src(idOf(f), `get_feature_requests › #${i}`) }));
 
+  // ===== Overview: top stakeholders, top deals, users, all activity =====
+  const stakeScore = (p) =>
+    (p.classes.includes("decides") ? 5 : 0) + (p.classes.includes("pays") ? 4 : 0) + (p.classes.includes("blocks") ? 3 : 0) + (p.classes.includes("uses") ? 2 : 0) +
+    Math.min(p.mentions.length, 3) + (p.leaving ? 2 : 0) + (p.lastTouch ? Math.max(0, 2 - daysBetween(today, startOfDay(p.lastTouch)) / 30) : 0);
+  const topStakeholders = [...P].sort((a, b) => stakeScore(b) - stakeScore(a)).slice(0, 5).map((p) => ({
+    name: p.name, role: p.role, stand: p.stand || null, classes: p.classes,
+    lastTouch: p.lastTouch ? fmtDate(p.lastTouch) : null, mentions: p.mentions.length, leaving: p.leaving ? (p.leaving.atRaw || (p.leaving.at ? fmtDate(p.leaving.at) : "yes")) : null, cite: p.cite,
+  }));
+  const topDeals = [...dealRows].sort((a, b) => (b.value ?? -1) - (a.value ?? -1)).slice(0, 5).map((d) => ({ id: d.id, name: d.name, stage: d.stage, value: d.value, currency: d.currency, status: d.status, cite: d.cite, evidence: d.evidence }));
+  const users = P.filter((p) => p.classes.includes("uses")).map((p) => ({ name: p.name, role: p.role, stand: p.stand || null, lastTouch: p.lastTouch ? fmtDate(p.lastTouch) : null, cite: p.cite }));
+  const usageRecords = records.filter((r) => /usage|telemetry/i.test(r.path)).map((r) => ({ path: r.path, snippet: r.text.replace(/\s+/g, " ").slice(0, 220) }));
+  const recDate = (r) => {
+    const o = r.obj ?? {};
+    const v = pick(o, "date", "at", "sent", "sent_at", "timestamp", "created_at", "when");
+    const pd = v != null ? parseDate(v) : null;
+    if (pd) return pd;
+    const m = r.path.match(/(\d{4})[-_.]?(\d{2})[-_.]?(\d{2})/);
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : null;
+  };
+  const typeOf = (r) => (/call|transcript|meeting/i.test(r.path) ? "call" : /email|mail|message/i.test(r.path) ? "email" : /contract|order|agreement|quote|invoice/i.test(r.path) ? "contract" : /usage|telemetry/i.test(r.path) ? "usage" : "record");
+  const notesHere = Object.values(store.notesWritten ?? {}).filter((n) => String(n.account) === String(key));
+  const activity = [
+    ...signals.map((s) => ({ at: s.at, atRaw: s.atRaw, type: "live event", title: s.title, detail: s.body.slice(0, 260), cite: src(s.id, `get_signals › #${s.pos}`) })),
+    ...records.map((r) => ({ at: recDate(r), type: typeOf(r), title: r.path, detail: r.text.replace(/\s+/g, " ").slice(0, 260), cite: src(r.path, `paperwork › ${r.path}`) })),
+    ...P.filter((p) => p.lastTouch).map((p) => ({ at: p.lastTouch, type: "contact", title: `Last contact with ${p.name}`, detail: p.role, cite: p.cite })),
+    ...notesHere.map((n) => ({ at: n.at, type: "note written", title: n.title, detail: `Saved back with write_note as ${n.kind}`, cite: src(null, "write_note") })),
+  ].sort((a, b) => (b.at ?? -1) - (a.at ?? -1)).slice(0, 300).map((x) => ({ ...x, at: x.at ? fmtDate(x.at) : x.atRaw || "undated" }));
+
   return {
     key, name: accountName, facts, owner: me,
     counts: { deals: deals.length, people: people.length, files: files.length, records: records.length, signals: signals.length },
+    overview: { topStakeholders, topDeals, users, usageRecords, activity },
     q1, q2, q2people, q3: { moves }, q4: { risks: risksOut }, q5: { gaps }, featureRequests: fr,
     signals: signals.map((s) => ({ id: s.id, pos: s.pos, at: s.atRaw, title: s.title, body: s.body })),
     knownIds: [...knownIds].slice(0, 400),

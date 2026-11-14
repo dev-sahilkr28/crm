@@ -8,7 +8,7 @@
 :root{--bg:#f6f5f1;--card:#fff;--ink:#1c1b18;--mute:#6b675e;--line:#e4e1d8;--acc:#1f4d3a;--red:#b3261e;--amb:#a66300;--grn:#2e6b3f;--chip:#efece3}
 @media (prefers-color-scheme:dark){:root{--bg:#141412;--card:#1d1c19;--ink:#ecebe6;--mute:#a09c90;--line:#2e2c27;--acc:#7fc9a3;--red:#ff8a80;--amb:#f0b35a;--grn:#8fd19e;--chip:#2a2823}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 h1{font-size:17px;margin:0}
 .live{font-size:12px;color:var(--mute);margin-left:auto;text-align:right}
@@ -17,13 +17,13 @@ h1{font-size:17px;margin:0}
 nav{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap}
 nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
 nav button.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
-main{max-width:1000px;margin:0 auto;padding:12px 16px 60px}
+main{max-width:1180px;margin:0 auto;padding:12px 16px 60px}
 section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
-section h2{font-size:15px;margin:0 0 2px}
+section h2{font-size:19px;margin:0 0 4px}
 .q{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
 .sub{color:var(--mute);font-size:13px;margin:0 0 10px}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);vertical-align:top}
 th{font-size:12px;color:var(--mute);font-weight:600;border-top:0}
 .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:11.5px;margin:1px 3px 1px 0;font-family:ui-monospace,Menlo,monospace;color:var(--mute);word-break:break-all}
@@ -39,7 +39,7 @@ th{font-size:12px;color:var(--mute);font-weight:600;border-top:0}
 .move{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .move:first-of-type{border-top:0}
 .rank{width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:13px}
-.meta{font-size:13px;color:var(--mute)}
+.meta{font-size:14px;color:var(--mute)}
 .meta b{color:var(--ink);font-weight:600}
 .empty{color:var(--mute);font-style:italic}
 details{margin-top:8px}summary{cursor:pointer;color:var(--mute);font-size:13px}
@@ -49,6 +49,22 @@ pre{background:var(--chip);padding:10px;border-radius:8px;overflow:auto;font-siz
 .role{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 .role h4{margin:0 0 4px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
 @media(max-width:560px){th:nth-child(n+4),td:nth-child(n+4){}}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi .l{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:14px}
+.two section{margin:0}
+.feed{max-height:560px;overflow:auto;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ev .d{font-variant-numeric:tabular-nums;color:var(--mute);font-size:13px}
+.ev b{font-size:15px}
+select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.jump{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.jump a{font-size:13px;color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card)}
+.pw{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;margin:1px 3px 1px 0;background:var(--chip);color:var(--ink)}
+@media(max-width:560px){.two{grid-template-columns:1fr}.ev{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -87,13 +103,15 @@ function render() {
     return;
   }
   const accs = state.result.accounts;
-  if (!tab || (tab !== "_sync" && tab !== "_raw" && !accs.find((a) => a.key === tab))) tab = accs[0]?.key;
-  $("#nav").innerHTML = accs.map((a) => `<button class="${tab === a.key ? "on" : ""}" data-t="${esc(a.key)}">Account ${esc(a.key)} · ${esc(a.name)}</button>`).join("") +
+  if (!tab) tab = "_dash";
+  if (tab !== "_dash" && (tab !== "_sync" && tab !== "_raw" && !accs.find((a) => a.key === tab))) tab = accs[0]?.key;
+  $("#nav").innerHTML = `<button class="${tab === "_dash" ? "on" : ""}" data-t="_dash">Dashboard · all accounts</button>` + accs.map((a) => `<button class="${tab === a.key ? "on" : ""}" data-t="${esc(a.key)}">Account ${esc(a.key)} · ${esc(a.name)}</button>`).join("") +
     `<button class="${tab === "_sync" ? "on" : ""}" data-t="_sync">Sync &amp; sources</button><button class="${tab === "_raw" ? "on" : ""}" data-t="_raw">Raw data</button>`;
   document.querySelectorAll("nav button").forEach((b) => b.onclick = () => { tab = b.dataset.t; localStorage.setItem("tab", tab); render(); });
   if (tab === "_sync") return void ($("#main").innerHTML = `<section><h2>Sync &amp; sources</h2>${syncBlock(st)}<details open><summary>Diagnostics</summary><pre>${esc(JSON.stringify(state.result.diagnostics, null, 2))}</pre></details></section>`);
   if (tab === "_raw") return renderRaw();
-  $("#main").innerHTML = account(accs.find((a) => a.key === tab));
+  if (tab === "_dash") return void ($("#main").innerHTML = overview(accs, true) + `<p class="meta">Pick an account tab for the five answers: book value, who holds the power, first moves, what is about to go wrong, what is unknown.</p>`);
+  $("#main").innerHTML = overview([accs.find((a) => a.key === tab)], false) + account(accs.find((a) => a.key === tab));
 }
 
 function syncBlock(st) {
@@ -110,6 +128,55 @@ async function renderRaw() {
   const show = async (n) => { rawName = n; const r = await fetch("/api/raw/" + encodeURIComponent(n)); const j = await r.json(); $("#rawpre").textContent = JSON.stringify(j.data ?? j, null, 2).slice(0, 60000); };
   document.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => show(b.dataset.n));
   if (rawName) show(rawName);
+}
+
+
+let feedType = "all", feedAll = false;
+const pw = (c) => ({ decides: "Decides", pays: "Pays", uses: "Uses it", blocks: "Could block" }[c]);
+function overview(accs, multi) {
+  const tag = (a) => multi ? `<span class="chip">${esc(a.key)}</span> ` : "";
+  const sum = (f) => accs.reduce((n, a) => n + f(a), 0);
+  const cur = accs.find((a) => a.q1.cur)?.q1.cur || "";
+  const kpi = (v, l, c) => `<div class="kpi"><div class="v" ${c ? `style="color:var(--${c})"` : ""}>${v}</div><div class="l">${l}</div></div>`;
+  const atRisk = sum((a) => a.q4.risks.filter((r) => r.sev === "at risk" || r.sev === "overdue").length);
+  const kpis = `<div class="kpis">${kpi(money(sum((a) => a.q1.backedTotal), cur), "Book backed by documents")}${kpi(money(sum((a) => a.q1.claimedTotal), cur), "Claimed, not counted", "amb")}${kpi(sum((a) => a.counts.deals), "Deals")}${kpi(sum((a) => a.counts.people), "Stakeholders")}${kpi(atRisk, "At risk now", atRisk ? "red" : "")}${kpi(sum((a) => a.signals.length), "Live events")}</div>`;
+
+  const stakes = accs.flatMap((a) => a.overview.topStakeholders.map((p) => ({ ...p, a })));
+  stakes.sort((x, y) => 0); // keep per-account ranking; combined view shows each account's top 5
+  const stakeRows = stakes.map((p) => `<tr><td>${tag(p.a)}<b>${esc(p.name)}</b>${p.leaving ? ` <span class="tag t-bad">leaving ${esc(p.leaving)}</span>` : ""}<div class="meta">${esc(p.role || "role not on file")}</div></td>
+    <td>${p.classes.length ? p.classes.map((c) => `<span class="pw">${pw(c)}</span>`).join("") : '<span class="empty">not classed</span>'}</td>
+    <td>${esc(p.stand || "—")}</td><td>${esc(p.lastTouch || "not on file")}</td><td>${chip(p.cite)}</td></tr>`).join("");
+  const stakeH = `<section><div class="q">Stakeholders</div><h2>Top 5 stakeholders${multi ? " per account" : ""}</h2><p class="sub">Ranked by decision power, budget, ability to block, how often they appear in calls, and recency.</p>
+    <table><tr><th>Person</th><th>Power</th><th>Stands</th><th>Last contact</th><th>Source</th></tr>${stakeRows || `<tr><td colspan=5 class="empty">No people found in the data.</td></tr>`}</table></section>`;
+
+  const deals = accs.flatMap((a) => a.overview.topDeals.map((d) => ({ ...d, a })));
+  deals.sort((x, y) => (y.value ?? -1) - (x.value ?? -1));
+  const dealRows = deals.slice(0, multi ? 8 : 5).map((d) => `<tr><td>${tag(d.a)}<b>${esc(d.name)}</b><div class="meta">${esc(d.stage || "stage not on file")}</div></td><td class="num"><b>${money(d.value, d.currency || cur)}</b></td>
+    <td><span class="tag ${d.status === "backed" ? "t-ok" : d.status === "claim_only" ? "t-amb" : "t-mute"}">${d.status === "backed" ? "backed" : d.status === "claim_only" ? "unbacked" : "no value"}</span></td><td>${chip(d.cite)}${chips((d.evidence || []).map((e) => ({ id: e })))}</td></tr>`).join("");
+  const dealH = `<section><div class="q">Deals</div><h2>Top deals</h2><p class="sub">Largest first. "Unbacked" means no file, offer or contract states the number.</p>
+    <table><tr><th>Deal</th><th class="num">Value</th><th>Standing</th><th>Source</th></tr>${dealRows || `<tr><td colspan=4 class="empty">No deals found in the data.</td></tr>`}</table></section>`;
+
+  const users = accs.flatMap((a) => a.overview.users.map((u) => ({ ...u, a })));
+  const usage = accs.flatMap((a) => a.overview.usageRecords.map((u) => ({ ...u, a })));
+  const userH = `<section><div class="q">Users</div><h2>Who uses it day to day</h2>
+    ${users.length ? `<table><tr><th>Person</th><th>Role</th><th>Stands</th><th>Last contact</th><th>Source</th></tr>${users.map((u) => `<tr><td>${tag(u.a)}<b>${esc(u.name)}</b></td><td>${esc(u.role)}</td><td>${esc(u.stand || "—")}</td><td>${esc(u.lastTouch || "not on file")}</td><td>${chip(u.cite)}</td></tr>`).join("")}</table>` : `<p class="empty">No one in the data is marked as a user or operator.</p>`}
+    ${usage.length ? `<details open><summary>Usage records on file</summary>${usage.map((u) => `<div style="margin:8px 0">${tag(u.a)}${chip({ id: u.path })}<div class="meta">${esc(u.snippet)}</div></div>`).join("")}</details>` : ""}</section>`;
+
+  const act = accs.flatMap((a) => a.overview.activity.map((e) => ({ ...e, a })));
+  act.sort((x, y) => (y.at === "undated") - (x.at === "undated") || String(y.at).localeCompare(String(x.at)));
+  const undated = act.filter((e) => e.at === "undated"), dated = act.filter((e) => e.at !== "undated");
+  const all = [...dated, ...undated];
+  const types = ["all", ...new Set(all.map((e) => e.type))];
+  const shown = all.filter((e) => feedType === "all" || e.type === feedType);
+  const list = (feedAll ? shown : shown.slice(0, 40)).map((e) => `<div class="ev"><div class="d">${esc(e.at)}</div><div>${tag(e.a)}<span class="tag ${e.type === "live event" ? "t-bad" : "t-mute"}">${esc(e.type)}</span> <b>${esc(e.title)}</b><div class="meta">${esc(e.detail)}</div>${chip(e.cite)}</div></div>`).join("");
+  const actH = `<section><div class="q">Activity</div><h2>All activity</h2><p class="sub">Live events, calls, emails, contracts, usage, last contacts and notes written back. Newest first.</p>
+    <label class="meta">Show: <select id="feedsel">${types.map((t) => `<option value="${esc(t)}" ${t === feedType ? "selected" : ""}>${esc(t)} ${t === "all" ? `(${all.length})` : `(${all.filter((e) => e.type === t).length})`}</option>`).join("")}</select></label>
+    <div class="feed">${list || `<p class="empty">No activity yet.</p>`}</div>${!feedAll && shown.length > 40 ? `<p><button id="feedmore">Show all ${shown.length}</button></p>` : ""}</section>`;
+  setTimeout(() => {
+    const sel = document.getElementById("feedsel"); if (sel) sel.onchange = () => { feedType = sel.value; feedAll = false; render(); };
+    const more = document.getElementById("feedmore"); if (more) more.onclick = () => { feedAll = true; render(); };
+  }, 0);
+  return `${kpis}<div class="two">${stakeH}${dealH}</div><div class="two" style="margin-top:14px">${userH}${actH}</div>`;
 }
 
 function account(a) {
@@ -149,7 +216,9 @@ function account(a) {
   <table><tr><th>Gap</th><th>Why it matters</th><th>Who could fill it</th><th>Source</th></tr>${a.q5.gaps.map((g) => `<tr><td>${esc(g.gap)}</td><td class="meta">${esc(g.matters)}</td><td>${list(g.ask)}</td><td>${chips(g.cite)}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">None found, which is itself suspicious.</td></tr>`}</table>
   ${a.featureRequests.length ? `<details><summary>Feature requests that mention this account</summary>${a.featureRequests.map((f) => `<div>${esc(f.label)} ${chip(f.cite)}</div>`).join("")}</details>` : ""}</section>`;
 
-  return `<div class="meta" style="margin-top:6px">${fm}</div>${sigs}${q1h}${q2h}${q3h}${q4h}${q5h}`;
+  const jump = `<div class="jump"><a href="#q1">1 Book value</a><a href="#q2">2 Power</a><a href="#q3">3 First moves</a><a href="#q4">4 What goes wrong</a><a href="#q5">5 Unknowns</a></div>`;
+  const anch = (h, n) => h.replace("<section>", `<section id="q${n}">`);
+  return `<div class="meta" style="margin-top:6px">${fm}</div>${sigs}${jump}${anch(q1h, 1)}${anch(q2h, 2)}${anch(q3h, 3)}${anch(q4h, 4)}${anch(q5h, 5)}`;
 }
 
 load();
