@@ -9,7 +9,6 @@ Needs Node 20 or newer. No dependencies to install.
 ```bash
 export AQ_TOKEN=your-token      # server-side only, never commit it
 node server.js                  # http://localhost:3000
-npm test                        # offline check of the analysis rules, uses invented data
 ```
 
 On a host (Render, Railway, Fly, any Node or Docker host): set `AQ_TOKEN` as an environment variable in the dashboard, start command `node server.js`. A `Dockerfile` is included. Optional: `DATA_DIR` to point the store at a persistent disk (without one the app simply refetches after a restart), `MAX_NOTES` to cap write-backs.
@@ -24,10 +23,10 @@ The MCP allows one call a minute per token. The server owns one queue and spaces
 
 ## Where the rules live
 
-- `lib/analyze.js`: the five answers. Field names are looked up under several likely spellings, so it adapts to the schema; see the "Raw data" tab and `/api/raw/<name>` to check what was read.
-- `lib/mcp.js`: the MCP client and rate-limited queue.
-- `lib/sync.js`: scheduling, storage, write-back.
-- `public/index.html`: the page.
+- `analyze.js`: the five answers. Field names are looked up under several likely spellings, so it adapts to the schema; see the "Raw data" tab and `/api/raw/<name>` to check what was read.
+- `mcp.js`: the MCP client and rate-limited queue.
+- `sync.js`: scheduling, storage, write-back.
+- `index.html`: the page.
 
 ## Rules it follows
 

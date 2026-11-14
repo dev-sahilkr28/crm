@@ -2,11 +2,11 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { analyze } from "./lib/analyze.js";
-import { store, start, getStatus } from "./lib/sync.js";
+import { analyze } from "./analyze.js";
+import { store, start, getStatus } from "./sync.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PUB = path.join(__dirname, "public");
+const PUB = __dirname;
 const PORT = process.env.PORT || 3000;
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml" };
 
@@ -31,7 +31,8 @@ http
         const v = store.fetched[name];
         return v ? json(res, 200, v) : json(res, 404, { error: "not fetched yet", have: Object.keys(store.fetched) });
       }
-      let f = url.pathname === "/" ? "/index.html" : url.pathname;
+      if (url.pathname !== "/" && url.pathname !== "/index.html") return json(res, 404, { error: "not found" });
+      let f = "/index.html";
       const full = path.normalize(path.join(PUB, f));
       if (!full.startsWith(PUB) || !fs.existsSync(full)) return json(res, 404, { error: "not found" });
       res.writeHead(200, { "content-type": TYPES[path.extname(full)] || "application/octet-stream" });
