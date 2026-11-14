@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account CRM</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1c1b18;--mute:#6b675e;--line:#e4e1d8;--acc:#1f4d3a;--red:#b3261e;--amb:#a66300;--grn:#2e6b3f;--chip:#efece3}
+@media (prefers-color-scheme:dark){:root{--bg:#141412;--card:#1d1c19;--ink:#ecebe6;--mute:#a09c90;--line:#2e2c27;--acc:#7fc9a3;--red:#ff8a80;--amb:#f0b35a;--grn:#8fd19e;--chip:#2a2823}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:17px;margin:0}
+.live{font-size:12px;color:var(--mute);margin-left:auto;text-align:right}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--grn);margin-right:6px}
+.dot.bad{background:var(--red)}
+nav{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap}
+nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
+nav button.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+main{max-width:1000px;margin:0 auto;padding:12px 16px 60px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+section h2{font-size:15px;margin:0 0 2px}
+.q{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.sub{color:var(--mute);font-size:13px;margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--mute);font-weight:600;border-top:0}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:11.5px;margin:1px 3px 1px 0;font-family:ui-monospace,Menlo,monospace;color:var(--mute);word-break:break-all}
+.chip.noid{font-style:italic}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600}
+.t-bad{color:var(--red);background:color-mix(in srgb,var(--red) 14%,transparent)}
+.t-amb{color:var(--amb);background:color-mix(in srgb,var(--amb) 16%,transparent)}
+.t-ok{color:var(--grn);background:color-mix(in srgb,var(--grn) 14%,transparent)}
+.t-mute{color:var(--mute);background:var(--chip)}
+.big{font-size:26px;font-weight:650;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:8px}
+.row small{display:block;color:var(--mute);font-size:12px}
+.move{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.move:first-of-type{border-top:0}
+.rank{width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:13px}
+.meta{font-size:13px;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:600}
+.empty{color:var(--mute);font-style:italic}
+details{margin-top:8px}summary{cursor:pointer;color:var(--mute);font-size:13px}
+pre{background:var(--chip);padding:10px;border-radius:8px;overflow:auto;font-size:12px;max-height:340px}
+.warn{background:color-mix(in srgb,var(--amb) 14%,transparent);border:1px solid var(--amb);border-radius:10px;padding:10px 12px;margin:14px 0;font-size:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.role{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.role h4{margin:0 0 4px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:560px){th:nth-child(n+4),td:nth-child(n+4){}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Account CRM</h1>
+  <span class="live" id="live">loading…</span>
+</header>
+<nav id="nav"></nav>
+<main id="main"><p class="empty">Loading…</p></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = (n, cur) => (n == null ? "—" : `${cur || ""}${Number(n).toLocaleString("en-US")}`);
+let state = null, tab = localStorage.getItem("tab") || null, rawName = null;
+
+const chip = (c) => c ? `<span class="chip ${c.id ? "" : "noid"}" title="${c.id ? "record id" : "no id in data — shown by position"}">${esc(c.id ?? c.where)}</span>` : "";
+const chips = (a) => (a || []).map(chip).join("");
+const sevTag = (s) => `<span class="tag ${s === "overdue" || s === "at risk" ? "t-bad" : s === "watch" ? "t-amb" : "t-mute"}">${esc(s)}</span>`;
+const list = (xs, empty = "—") => xs.length ? xs.map(esc).join(", ") : `<span class="empty">${empty}</span>`;
+
+async function load() {
+  try {
+    const r = await fetch("/api/state", { cache: "no-store" });
+    state = await r.json();
+  } catch (e) { $("#live").innerHTML = `<span class="dot bad"></span>server unreachable`; return; }
+  render();
+}
+
+function render() {
+  const st = state.status;
+  const t = (ms) => ms ? new Date(ms).toLocaleTimeString() : "never";
+  $("#live").innerHTML = `<span class="dot ${st.lastError ? "bad" : ""}"></span>signals checked ${t(st.fetched.get_signals)} · next MCP call in ${st.nextCallInSec}s${st.busy ? " · fetching " + esc(st.busy) : ""}`;
+  if (!state.ready) {
+    $("#nav").innerHTML = "";
+    $("#main").innerHTML = `<section><h2>Pulling your data</h2><p class="sub">The first pull takes a few minutes: the MCP allows one call a minute, so accounts, signals and paperwork are fetched one by one and stored. This page fills in by itself.</p>${!st.tokenConfigured ? `<div class="warn">AQ_TOKEN is not set on the server.</div>` : ""}${st.lastError ? `<div class="warn">Last error: ${esc(st.lastError.message)}</div>` : ""}${syncBlock(st)}</section>`;
+    return;
+  }
+  const accs = state.result.accounts;
+  if (!tab || (tab !== "_sync" && tab !== "_raw" && !accs.find((a) => a.key === tab))) tab = accs[0]?.key;
+  $("#nav").innerHTML = accs.map((a) => `<button class="${tab === a.key ? "on" : ""}" data-t="${esc(a.key)}">Account ${esc(a.key)} · ${esc(a.name)}</button>`).join("") +
+    `<button class="${tab === "_sync" ? "on" : ""}" data-t="_sync">Sync &amp; sources</button><button class="${tab === "_raw" ? "on" : ""}" data-t="_raw">Raw data</button>`;
+  document.querySelectorAll("nav button").forEach((b) => b.onclick = () => { tab = b.dataset.t; localStorage.setItem("tab", tab); render(); });
+  if (tab === "_sync") return void ($("#main").innerHTML = `<section><h2>Sync &amp; sources</h2>${syncBlock(st)}<details open><summary>Diagnostics</summary><pre>${esc(JSON.stringify(state.result.diagnostics, null, 2))}</pre></details></section>`);
+  if (tab === "_raw") return renderRaw();
+  $("#main").innerHTML = account(accs.find((a) => a.key === tab));
+}
+
+function syncBlock(st) {
+  const rows = Object.entries(st.fetched).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${new Date(v).toLocaleString()}</td></tr>`).join("");
+  return `<table><tr><th>Stored fetch</th><th>When</th></tr>${rows || `<tr><td colspan=2 class="empty">nothing yet</td></tr>`}</table>
+  <p class="sub">Notes written back with write_note: <b>${st.notesWritten}</b>${st.lastError ? ` · last error: ${esc(st.lastError.message)}` : ""}</p>
+  <details><summary>Recent activity</summary><pre>${esc(st.log.map((l) => new Date(l.at).toLocaleTimeString() + "  " + l.msg).join("\n"))}</pre></details>`;
+}
+
+async function renderRaw() {
+  const names = Object.keys(state.status.fetched);
+  rawName = rawName && names.includes(rawName) ? rawName : names[0];
+  $("#main").innerHTML = `<section><h2>Raw data as stored</h2><p class="sub">Exactly what the MCP returned. Every id on the other tabs comes from here.</p>${names.map((n) => `<button data-n="${esc(n)}" style="margin:0 6px 6px 0">${esc(n)}</button>`).join("")}<pre id="rawpre">loading…</pre></section>`;
+  const show = async (n) => { rawName = n; const r = await fetch("/api/raw/" + encodeURIComponent(n)); const j = await r.json(); $("#rawpre").textContent = JSON.stringify(j.data ?? j, null, 2).slice(0, 60000); };
+  document.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => show(b.dataset.n));
+  if (rawName) show(rawName);
+}
+
+function account(a) {
+  const q1 = a.q1, cur = q1.cur;
+  const unbacked = q1.deals.filter((d) => d.status !== "backed");
+  const backed = q1.deals.filter((d) => d.status === "backed");
+  const fm = typeof a.facts === "object" && a.facts ? Object.entries(a.facts).slice(0, 8).map(([k, v]) => `<span class="chip">${esc(k)}: ${esc(typeof v === "object" ? JSON.stringify(v) : v)}</span>`).join("") : esc(a.facts || "");
+  const sigs = a.signals.length ? `<section><div class="q">Live</div><h2>New events on this account</h2>${a.signals.slice().reverse().map((s) => `<div class="move"><div class="rank" style="background:var(--amb)">!</div><div><b>${esc(s.title)}</b> <span class="meta">${esc(s.at)}</span><div class="meta">${esc(s.body)}</div><div>${chip({ id: s.id, where: `get_signals › #${s.pos}` })}</div></div></div>`).join("")}</section>` : "";
+
+  const q1h = `<section><div class="q">Question 1</div><h2>What is the book worth?</h2>
+  <p class="sub">Only values with a document or offer behind them count. Everything else is shown apart.</p>
+  <div class="row"><div><div class="big">${money(q1.backedTotal, cur)}</div><small>Backed (${backed.length} deal${backed.length === 1 ? "" : "s"})</small></div>
+  <div><div class="big" style="color:var(--amb)">${money(q1.claimedTotal, cur)}</div><small>Claimed only, not counted</small></div></div>
+  <table><tr><th>Deal</th><th>Stage</th><th class="num">Value</th><th>Standing</th><th>Behind it</th></tr>
+  ${q1.deals.map((d) => `<tr><td>${esc(d.name)}</td><td>${esc(d.stage || "—")}</td><td class="num">${money(d.value, cur)}</td>
+  <td><span class="tag ${d.status === "backed" ? "t-ok" : d.status === "claim_only" ? "t-amb" : "t-mute"}">${d.status === "backed" ? "backed" : d.status === "claim_only" ? "unbacked" : "no value"}</span><div class="meta">${esc(d.reason)}</div>${(d.conflicts || []).map((c) => `<div class="meta" style="color:var(--amb)">Someone also said ${esc(c.text)} (not counted) ${chip({ id: c.path })}</div>`).join("")}</td>
+  <td>${chips(d.evidence.map((e) => ({ id: e })))}${d.claimedIn.length ? `<div class="meta">said in:</div>${chips(d.claimedIn.map((e) => ({ id: e })))}` : ""}<div class="meta">deal:</div>${chip(d.cite)}</td></tr>`).join("") || `<tr><td colspan=5 class="empty">No deals found in the data.</td></tr>`}</table>
+  ${unbacked.length ? "" : ""}</section>`;
+
+  const roleBox = (title, xs) => `<div class="role"><h4>${title}</h4>${xs.length ? xs.map((p) => `<div><b>${esc(p.name)}</b>${p.leaving ? ' <span class="tag t-bad">leaving</span>' : ""}<div class="meta">${esc(p.role)}${p.stand ? " · stands: " + esc(p.stand) : ""}</div>${chip(p.cite)}</div>`).join("") : `<span class="empty">not identified</span>`}</div>`;
+  const q2h = `<section><div class="q">Question 2</div><h2>Who holds the power?</h2>
+  ${a.q2.map((d) => `<div style="margin:10px 0"><b>${esc(d.deal.name)}</b> ${chip(d.deal.cite)} ${d.linkedInData ? "" : '<span class="tag t-mute">contacts not linked to deals in data: account-wide view</span>'}
+  <div class="grid2" style="margin-top:6px">${roleBox("Decides", d.decides)}${roleBox("Pays", d.pays)}${roleBox("Uses it", d.uses)}${roleBox("Could block", d.blocks)}</div></div>`).join("") || `<p class="empty">No deals to map.</p>`}
+  <details><summary>All ${a.q2people.length} people, with last contact</summary><table><tr><th>Person</th><th>Role</th><th>Stands</th><th>Last contact</th></tr>${a.q2people.map((p) => `<tr><td>${esc(p.name)} ${chip(p.cite)}</td><td>${esc(p.role)}</td><td>${esc(p.stand || "—")}</td><td>${esc(p.lastTouch || "not on file")}${p.leaving ? ` <span class="tag t-bad">leaves ${esc(p.leaving.at || "")}</span>` : ""}</td></tr>`).join("")}</table></details></section>`;
+
+  const mv = a.q3.moves.slice(0, 3), rest = a.q3.moves.slice(3);
+  const moveH = (m) => `<div class="move"><div class="rank">${m.rank}</div><div><b>${esc(m.title)}</b>
+  <div class="meta"><b>Owner</b> ${esc(m.owner)} · <b>By</b> ${esc(m.due)}${m.deadline ? ` (deadline ${esc(m.deadline)}${m.insideDeadline ? "" : ", LATE"})` : ""}${m.deal ? ` · <b>Moves</b> ${esc(m.deal)}` : ""}</div>
+  <div class="meta">${esc(m.why)}</div><div>${chips(m.cite)}</div></div></div>`;
+  const q3h = `<section><div class="q">Question 3</div><h2>What do you do first?</h2>${mv.map(moveH).join("") || `<p class="empty">No moves could be derived yet.</p>`}
+  ${rest.length ? `<details><summary>${rest.length} more, ranked</summary>${rest.map(moveH).join("")}</details>` : ""}</section>`;
+
+  const q4h = `<section><div class="q">Question 4</div><h2>What is about to go wrong?</h2><p class="sub">Ordered by severity, then by the date each turns bad.</p>
+  <table><tr><th>Risk</th><th>Turns bad</th><th>Why</th><th>Source</th></tr>${a.q4.risks.map((r) => `<tr><td>${sevTag(r.sev)} ${esc(r.title)}${r.deal ? `<div class="meta">${esc(r.deal)}</div>` : ""}</td><td class="num">${esc(r.turnsBadOn)}</td><td class="meta">${esc(r.why)}</td><td>${chips(r.cite)}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">No dated risks found in the data. That is not the same as none: check the gaps below.</td></tr>`}</table></section>`;
+
+  const q5h = `<section><div class="q">Question 5</div><h2>What do you still not know?</h2>
+  <table><tr><th>Gap</th><th>Why it matters</th><th>Who could fill it</th><th>Source</th></tr>${a.q5.gaps.map((g) => `<tr><td>${esc(g.gap)}</td><td class="meta">${esc(g.matters)}</td><td>${list(g.ask)}</td><td>${chips(g.cite)}</td></tr>`).join("") || `<tr><td colspan=4 class="empty">None found, which is itself suspicious.</td></tr>`}</table>
+  ${a.featureRequests.length ? `<details><summary>Feature requests that mention this account</summary>${a.featureRequests.map((f) => `<div>${esc(f.label)} ${chip(f.cite)}</div>`).join("")}</details>` : ""}</section>`;
+
+  return `<div class="meta" style="margin-top:6px">${fm}</div>${sigs}${q1h}${q2h}${q3h}${q4h}${q5h}`;
+}
+
+load();
+setInterval(load, 20000);
+</script>
+</body>
+</html>
